@@ -4,6 +4,8 @@ import { check, validationResult } from 'express-validator';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import User from './models/User';
+import jwt from 'jasonwebtoken';
+import config from 'config';
 
 //initialize express application
 const app = express();
@@ -61,7 +63,17 @@ app.post(
                 user.password = await bcrypt.hash(password, salt);
         
                 await user.save();
-                res.send('user successfully registered');
+                
+                jwt.sign(
+                    payload,
+                    config.get('jwtSecret'),
+                    {expiresIn: '10hr'},
+                    (err, token) => {
+                        if (err) throw err;
+                        res.json({token: token});
+                    }
+                )
+
             }catch(error){
                 res.status(500).send('server error')
             }
