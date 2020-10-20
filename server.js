@@ -3,9 +3,9 @@ import connectDatabase from './config/db';
 import { check, validationResult } from 'express-validator';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
-import User from './models/User';
-import jwt from 'jasonwebtoken';
+import jwt from 'jsonwebtoken';
 import config from 'config';
+import User from './models/User';
 
 //initialize express application
 const app = express();
@@ -63,6 +63,12 @@ app.post(
                 user.password = await bcrypt.hash(password, salt);
         
                 await user.save();
+
+                const payload = {
+                    user: {
+                        id: user.id
+                    }
+                }
                 
                 jwt.sign(
                     payload,
